@@ -1,0 +1,124 @@
+import vagones.*
+import formaciones.*
+
+describe "tests etapa 1 vagones" {
+
+	const pasajero1 = new VagonDePasajero(largo = 10, ancho = 4, tieneBanio = true, ordenado = true)
+	const pasajero2 = new VagonDePasajero(largo = 7, ancho = 2, tieneBanio = false, ordenado = false)
+	const carga1 = new VagonDeCarga(cargaMaximaIdeal = 6800, cantMaderas = 5)
+	const dormitorio1 = new VagonDormitorio(cantCompratimientos = 8, cantCamasPorCompartimientos = 3)
+
+	test"pasajero1 debe tener 100 pasajeros, su peso maximo 10300, carga max 300, y debe tener baño" {
+		assert.equals(100, pasajero1.cantDePasajeros())
+		assert.equals(300, pasajero1.cantMaxCarga())
+		assert.equals(10300, pasajero1.pesoMax())
+		assert.that(pasajero1.tieneBanio())
+		assert.that(pasajero1.estaOrdenado())
+	}
+
+	test"pasajero2 debe tener 41 pasajeros, su peso maximo 6080, carga max 800, y no debe tener baño" {
+		assert.equals(41, pasajero2.cantDePasajeros())
+		assert.equals(800, pasajero2.cantMaxCarga())
+		assert.equals(6080, pasajero2.pesoMax())
+		assert.notThat(pasajero2.tieneBanio())
+		assert.notThat(pasajero2.estaOrdenado())
+	}
+
+	test"carga1 debe  peso maximo 6300, carga max 4800, y no debe tener baño" {
+		assert.equals(4800, carga1.cantMaxCarga())
+		assert.notThat(carga1.tieneBanio())
+		assert.equals(6300, carga1.pesoMax())
+	}
+
+	test"dormitorio1 debe tener 24 pasajeros, su peso maximo 7120, carga max 1200, y debe tener baño" {
+		assert.equals(24, dormitorio1.cantDePasajeros())
+		assert.equals(1200, dormitorio1.cantMaxCarga())
+		assert.that(dormitorio1.tieneBanio())
+		assert.equals(7120, dormitorio1.pesoMax())
+	}
+
+}
+
+describe "tests etapa 1 formaciones" {
+
+	const pasajero1 = new VagonDePasajero(largo = 10, ancho = 4, tieneBanio = true, ordenado = true)
+	const pasajero2 = new VagonDePasajero(largo = 7, ancho = 2, tieneBanio = false, ordenado = false)
+	const carga1 = new VagonDeCarga(cargaMaximaIdeal = 6800, cantMaderas = 5)
+	const dormitorio1 = new VagonDormitorio(cantCompratimientos = 8, cantCamasPorCompartimientos = 3)
+	const formacion1 = new Formacion()
+
+	method initialize() {
+		formacion1.agregarVagones([ pasajero1, pasajero2, carga1, dormitorio1 ])
+	}
+
+	test"cantitad de pasajeros de formacion 1 es 165" {
+		assert.equals(165, formacion1.cantPasajerosMax())
+	}
+
+	test"vagones populares 1" {
+		assert.equals(1, formacion1.cantVagonesPasajeros())
+	}
+
+	test"no debe ser carguero" {
+		assert.notThat(formacion1.esFormacionCarguera())
+	}
+
+	test"dispercion de peso debe ser 4220" {
+		assert.equals(4220, formacion1.dispercionDePeso())
+	}
+
+	test"debe tener 2 banios" {
+		assert.equals(2, formacion1.cantDeBanios())
+	}
+
+}
+
+describe "mantenimiento" {
+
+	const pasajero1 = new VagonDePasajero(largo = 10, ancho = 4, tieneBanio = true, ordenado = true)
+	const pasajero2 = new VagonDePasajero(largo = 7, ancho = 2, tieneBanio = false, ordenado = false)
+	const carga1 = new VagonDeCarga(cargaMaximaIdeal = 6800, cantMaderas = 5)
+	const dormitorio1 = new VagonDormitorio(cantCompratimientos = 8, cantCamasPorCompartimientos = 3)
+	const formacion1 = new Formacion()
+
+	method initialize() {
+		formacion1.agregarVagones([ pasajero1, pasajero2, carga1, dormitorio1 ])
+		formacion1.hacerMantenimiento()
+	}
+
+	test"pasajeros: el vagón 2 pasa a estar ordenado, lo que aumenta en 15 su cantidad de pasajeros." {
+		assert.equals(180, formacion1.cantPasajerosMax())
+	}
+	test"vagones populares: por lo recién dicho, el vagón 2 pasa de 41 a 56 pasajeros, por lo que es considerado popular." {
+		assert.equals(2, formacion1.cantVagonesPasajeros())
+	}
+	test"dispersión de pesos: el vagón 2 pasa de 6080 a 7280 kilos. Por su parte, el vagón 3 pasa de 6300 a 7100 kilos. Ahora el vagón más liviano es el 3."{
+		assert.equals(3200, formacion1.dispercionDePeso())
+	}
+
+}
+describe "test segunda formacion"{
+	const dormitorio2 = new VagonDormitorio(cantCompratimientos = 15 , cantCamasPorCompartimientos = 4)
+	const carga2 = new VagonDeCarga(cargaMaximaIdeal = 8000 , cantMaderas = 1)
+	const formacion2 = new Formacion()
+	method initialize() {
+		formacion2.agregarVagones([ dormitorio2, carga2])
+	}
+
+	test"antes del manteminieto debe dar 60 pasajero , 1 vagon popular, debe ser carquero, 1 banio y debe tener una dispersion de peso de 900" {
+		assert.equals(60, formacion2.cantPasajerosMax())
+		assert.equals(1, formacion2.cantVagonesPasajeros())
+		assert.that(formacion2.esFormacionCarguera())
+		assert.equals(900, formacion2.dispercionDePeso())
+		assert.equals(1, formacion2.cantDeBanios())
+	}
+	test"luego del mantenimiento debe dar 60 pasajero , 1 vagon popular, debe ser carquero, 1 banio y debe tener una dispersion de peso de 500" {
+		formacion2.hacerMantenimiento()
+		assert.equals(60, formacion2.cantPasajerosMax())
+		assert.equals(1, formacion2.cantVagonesPasajeros())
+		assert.that(formacion2.esFormacionCarguera())
+		assert.equals(500, formacion2.dispercionDePeso())
+		assert.equals(1, formacion2.cantDeBanios())
+	}
+}
+
